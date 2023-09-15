@@ -5,14 +5,41 @@ tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1")
 tts.to("cuda")
 
 
-def predict(prompt, language, audio_file_pth, agree):
+def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
     if agree == True:
-        tts.tts_to_file(
-            text=prompt,
-            file_path="output.wav",
-            speaker_wav=audio_file_pth,
-            language=language,
-        )
+        if use_mic == True:
+            if mic_file_path is not None:
+                speaker_wav=mic_file_path
+            else:
+                gr.Warning("Please record your voice with Microphone, or uncheck Use Microphone to use reference audios")
+                return (
+                    None,
+                    None,
+                ) 
+                
+        else:
+            speaker_wav=audio_file_pth
+
+        if len(prompt)<2:
+            gr.Warning("Please give a longer prompt text")
+            return (
+                    None,
+                    None,
+                )
+        try:   
+            tts.tts_to_file(
+                text=prompt,
+                file_path="output.wav",
+                speaker_wav=speaker_wav,
+                language=language,
+            )
+        except RuntimeError:
+            if "device-side" in e.message:
+                # cannot do anything on cuda device side error, need tor estart
+                gr.Warning("Unhandled Exception encounter, please retry in a minute")
+                print("Cuda device-assert Runtime encountered need restart")
+                sys.exit("Exit due to cuda device-assert")
+            raise
 
         return (
             gr.make_waveform(
@@ -22,6 +49,10 @@ def predict(prompt, language, audio_file_pth, agree):
         )
     else:
         gr.Warning("Please accept the Terms & Condition!")
+        return (
+                None,
+                None,
+            ) 
 
 
 title = "Coqui🐸 XTTS"
@@ -49,21 +80,35 @@ article = """
 
 examples = [
     [
-        "Once when I was six years old I saw a magnificent picture.",
+        "Once when I was six years old I saw a magnificent picture",
         "en",
         "examples/female.wav",
+        None,
+        False,
         True,
     ],
     [
-        "Lorsque j'avais six ans j'ai vu, une fois, une magnifique image.",
+        "Lorsque j'avais six ans j'ai vu, une fois, une magnifique image",
         "fr",
         "examples/male.wav",
+        None,
+        False,
         True,
     ],
     [
-        "Un tempo lontano, quando avevo sei anni, vidi un magnifico disegno.",
+        "Un tempo lontano, quando avevo sei anni, vidi un magnifico disegno",
         "it",
         "examples/female.wav",
+        None,
+        False,
+        True,
+    ],
+    [
+        "Bir zamanlar, altı yaşındayken, muhteşem bir resim gördüm",
+        "tr",
+        "examples/female.wav",
+        None,
+        False,
         True,
     ],
 ]
@@ -103,6 +148,11 @@ gr.Interface(
             type="filepath",
             value="examples/female.wav",
         ),
+        gr.Audio(source="microphone",
+                 type="filepath",
+                 info="Use your microphone to record audio",
+                 label="Use Microphone for Reference"),
+        gr.Checkbox(label="Check to use Microphone as Reference", value=False),
         gr.Checkbox(
             label="Agree",
             value=False,
