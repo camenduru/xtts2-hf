@@ -4,9 +4,6 @@ import os
 import gradio as gr
 from TTS.api import TTS
 
-tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1")
-tts.to("cuda")
-
 
 def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
     if agree == True:
@@ -189,7 +186,7 @@ gr.Interface(
         gr.Textbox(
             label="Text Prompt",
             info="One or two sentences at a time is better",
-            value="""Hi there, I'm your new voice clone. Try your best to upload quality audio. Like my grandma used to say: "Garbage in, garbage out!"""",
+            value="Hi there, I'm your new voice clone. Try your best to upload quality audio. Like my grandma used to say: 'Garbage in, garbage out!'",
         ),
         gr.Dropdown(
             label="Language",
