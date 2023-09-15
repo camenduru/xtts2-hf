@@ -34,7 +34,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
                 speaker_wav=speaker_wav,
                 language=language,
             )
-        except RuntimeError:
+        except RuntimeError as e:
             if "device-side" in e.message:
                 # cannot do anything on cuda device side error, need tor estart
                 gr.Warning("Unhandled Exception encounter, please retry in a minute")
