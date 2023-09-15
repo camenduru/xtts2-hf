@@ -223,7 +223,9 @@ gr.Interface(
                  type="filepath",
                  info="Use your microphone to record audio",
                  label="Use Microphone for Reference"),
-        gr.Checkbox(label="Check to use Microphone as Reference", value=False),
+        gr.Checkbox(label="Check to use Microphone as Reference",
+                    value=False,
+                    info="Notice: Microphone input may not work properly under traffic",),
         gr.Checkbox(
             label="Agree",
             value=False,
