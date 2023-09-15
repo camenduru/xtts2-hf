@@ -1,4 +1,5 @@
 import gradio as gr
+import sys
 from TTS.api import TTS
 
 tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1")
