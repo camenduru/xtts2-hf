@@ -1,5 +1,6 @@
 import sys
 import os
+os.system("pip uninstall gradio")
 os.system("pip install --upgrade gradio==3.24.0")
 
 import gradio as gr
