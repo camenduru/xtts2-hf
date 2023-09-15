@@ -1,2 +1,2 @@
-TTS==0.17.1
+TTS@ git+https://github.com/coqui-ai/tts.git@aa8fa4756e9130e536f0dfc610617db103a43efd
 gradio==3.41.2
