@@ -186,7 +186,7 @@ gr.Interface(
         gr.Textbox(
             label="Text Prompt",
             info="One or two sentences at a time is better",
-            value="It took me quite a long time to develop a voice, and now that I have it I'm not going to be silent.",
+            value='Hi there, I'm your new voice clone. Try your best to upload quality audio. Like my grandma used to say: "Garbage in, garbage out!"',
         ),
         gr.Dropdown(
             label="Language",
