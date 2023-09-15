@@ -1,5 +1,7 @@
 import sys
 import os
+# By using XTTS you agree to CPML license https://coqui.ai/cpml
+os.environ["COQUI_TOS_AGREED"] = "1"
 
 import gradio as gr
 from TTS.api import TTS
