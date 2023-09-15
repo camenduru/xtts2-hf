@@ -1,7 +1,5 @@
 import sys
 import os
-#os.system("pip uninstall -y gradio")
-#os.system("pip install --upgrade gradio==3.24.0")
 
 import gradio as gr
 from TTS.api import TTS
@@ -38,15 +36,12 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
                 speaker_wav=speaker_wav,
                 language=language,
             )
-        except RuntimeError as e:
-            if "device-side" in e.message:
-                # cannot do anything on cuda device side error, need tor estart
-                gr.Warning("Unhandled Exception encounter, please retry in a minute")
-                print("Cuda device-assert Runtime encountered need restart")
-                print(e.message)
-                sys.exit("Exit due to cuda device-assert")
-            raise
-
+        except RuntimeError :
+            # cannot do anything on cuda device side error, need tor estart
+            gr.Warning("Unhandled Exception encounter, please retry in a minute")
+            print("Cuda device-assert Runtime encountered need restart")
+            sys.exit("Exit due to cuda device-assert")
+            
         return (
             gr.make_waveform(
                 audio="output.wav",
@@ -66,10 +61,11 @@ title = "Coqui🐸 XTTS"
 description = """
 <a href="https://huggingface.co/coqui/XTTS-v1">XTTS</a> is a Voice generation model that lets you clone voices into different languages by using just a quick 3-second audio clip. 
 <br/>
-Built on Tortoise, XTTS has important model changes that make cross-language voice cloning and multi-lingual speech generation super easy. 
+XTTS is built on previous research, like Tortoise, with additional architectural innovations and training to make cross-language voice cloning and multilingual speech generation possible. 
 <br/>
-This is the same model that powers Coqui Studio, and Coqui API, however we apply a few tricks to make it faster and support streaming inference.
+This is the same model that powers our creator application <a href="https://coqui.ai">Coqui Studio</a> as well as the <a href="https://docs.coqui.ai">Coqui API</a>. In production we apply modifications to make low-latency streaming possible.
 <br/>
+Leave a star on the Github <a href="https://github.com/coqui-ai/TTS">🐸TTS</a>, where our open-source inference and training code lives.
 <br/>
 <p>For faster inference without waiting in the queue, you should duplicate this space and upgrade to GPU via the settings.
 <br/>
@@ -83,7 +79,6 @@ article = """
 <p>By using this demo you agree to the terms of the Coqui Public Model License at https://coqui.ai/cpml</p>
 </div>
 """
-
 examples = [
     [
         "Once when I was six years old I saw a magnificent picture",
@@ -96,6 +91,38 @@ examples = [
     [
         "Lorsque j'avais six ans j'ai vu, une fois, une magnifique image",
         "fr",
+        "examples/male.wav",
+        None,
+        False,
+        True,
+    ],
+    [
+        "Als ich sechs war, sah ich einmal ein wunderbares Bild",
+        "de",
+        "examples/female.wav",
+        None,
+        False,
+        True,
+    ],
+    [
+        "Cuando tenía seis años, vi una vez una imagen magnífica",
+        "es",
+        "examples/male.wav",
+        None,
+        False,
+        True,
+    ],
+    [
+        "Quando eu tinha seis anos eu vi, uma vez, uma imagem magnífica",
+        "pt",
+        "examples/female.wav",
+        None,
+        False,
+        True,
+    ],
+    [
+        "Kiedy miałem sześć lat, zobaczyłem pewnego razu wspaniały obrazek",
+        "pl",
         "examples/male.wav",
         None,
         False,
@@ -117,7 +144,41 @@ examples = [
         False,
         True,
     ],
+    [
+        "Когда мне было шесть лет, я увидел однажды удивительную картинку",
+        "ru",
+        "examples/female.wav",
+        None,
+        False,
+        True,
+    ],
+    [
+        "Toen ik een jaar of zes was, zag ik op een keer een prachtige plaat",
+        "nl",
+        "examples/male.wav",
+        None,
+        False,
+        True,
+    ],
+    [
+        "Když mi bylo šest let, viděl jsem jednou nádherný obrázek",
+        "cs",
+        "examples/female.wav",
+        None,
+        False,
+        True,
+    ],
+    [
+        "当我还只有六岁的时候， 看到了一副精彩的插画",
+        "zh-cn",
+        "examples/female.wav",
+        None,
+        False,
+        True,
+    ],
 ]
+
+
 
 gr.Interface(
     fn=predict,
@@ -141,7 +202,7 @@ gr.Interface(
                 "tr",
                 "ru",
                 "nl",
-                "cz",
+                "cs",
                 "ar",
                 "zh-cn",
             ],
