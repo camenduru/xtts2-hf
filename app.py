@@ -1,9 +1,5 @@
 import gradio as gr
-import os 
 from TTS.api import TTS
-
-# By using this model you agree to COQUI TOS, will double check on GUI
-os.environ["COQUI_TOS_AGREED"] = "1" 
 
 tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1")
 tts.to("cuda")
