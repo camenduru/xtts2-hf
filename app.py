@@ -1,7 +1,7 @@
 import sys
 import os
-os.system("pip uninstall -y gradio")
-os.system("pip install --upgrade gradio==3.24.0")
+#os.system("pip uninstall -y gradio")
+#os.system("pip install --upgrade gradio==3.24.0")
 
 import gradio as gr
 from TTS.api import TTS
