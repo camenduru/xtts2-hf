@@ -4,6 +4,8 @@ import os
 import gradio as gr
 from TTS.api import TTS
 
+tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1")
+tts.to("cuda")
 
 def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
     if agree == True:
