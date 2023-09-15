@@ -36,11 +36,14 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
                 speaker_wav=speaker_wav,
                 language=language,
             )
-        except RuntimeError :
-            # cannot do anything on cuda device side error, need tor estart
-            gr.Warning("Unhandled Exception encounter, please retry in a minute")
-            print("Cuda device-assert Runtime encountered need restart")
-            sys.exit("Exit due to cuda device-assert")
+        except RuntimeError as e :
+            if "device-assert" in str(e):
+                # cannot do anything on cuda device side error, need tor estart
+                gr.Warning("Unhandled Exception encounter, please retry in a minute")
+                print("Cuda device-assert Runtime encountered need restart")
+                sys.exit("Exit due to cuda device-assert")
+            else:
+                raise e
             
         return (
             gr.make_waveform(
@@ -186,7 +189,7 @@ gr.Interface(
         gr.Textbox(
             label="Text Prompt",
             info="One or two sentences at a time is better",
-            value='Hi there, I'm your new voice clone. Try your best to upload quality audio. Like my grandma used to say: "Garbage in, garbage out!"',
+            value="""Hi there, I'm your new voice clone. Try your best to upload quality audio. Like my grandma used to say: "Garbage in, garbage out!"""",
         ),
         gr.Dropdown(
             label="Language",
