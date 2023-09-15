@@ -39,6 +39,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
                 # cannot do anything on cuda device side error, need tor estart
                 gr.Warning("Unhandled Exception encounter, please retry in a minute")
                 print("Cuda device-assert Runtime encountered need restart")
+                print(e.message)
                 sys.exit("Exit due to cuda device-assert")
             raise
 
