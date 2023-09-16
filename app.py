@@ -29,17 +29,19 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
             #we use zh-cn 
             language_predicted = "zh-cn"
         #This is for identifying problems only. 
-        print(f"Detected language:{language_predicted}, Chosen language:{language}, text:{prompt}")
+        print(f"Detected language:{language_predicted}, Chosen language:{language}")
 
-        if language_predicted != language:
-            #Please duplicate and remove this check if you really want this
-            #Or auto-detector fails to identify language (which it can on pretty short text or mixed text)
-            gr.Warning(f"Auto-Predicted Language in prompt (detected: {language_predicted}) does not match language you chose (chosen: {language}) , please choose correct language id. If you think this is incorrect please duplicate this space and modify code.")
+        if len(prompt)>10:
+            #allow any language for short text as some may be common
+            if language_predicted != language:
+                #Please duplicate and remove this check if you really want this
+                #Or auto-detector fails to identify language (which it can on pretty short text or mixed text)
+                gr.Warning(f"Auto-Predicted Language in prompt (detected: {language_predicted}) does not match language you chose (chosen: {language}) , please choose correct language id. If you think this is incorrect please duplicate this space and modify code.")
             
-            return (
-                    None,
-                    None,
-                ) 
+                return (
+                        None,
+                        None,
+                    ) 
 
 
         
