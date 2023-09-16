@@ -3,6 +3,8 @@ import os
 # By using XTTS you agree to CPML license https://coqui.ai/cpml
 os.environ["COQUI_TOS_AGREED"] = "1"
 
+import langid 
+
 import gradio as gr
 from TTS.api import TTS
 
@@ -11,6 +13,35 @@ tts.to("cuda")
 
 def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
     if agree == True:
+        supported_languages=["en","es","fr","de","it","pt","pl","tr","ru","nl","cs","ar","zh-cn"]
+
+        if language not in supported_languages:
+            gr.Warning("Language you put in is not in is not in our Supported Languages, please choose from dropdown")
+                
+            return (
+                    None,
+                    None,
+                ) 
+
+        language_predicted=langid.classify(prompt)[0].strip() # strip need as there is space at end!
+
+        if language_predicted == "zh": 
+            #we use zh-cn 
+            language_predicted = "zh-cn"
+        print(f"Detected language:{language_predicted}, Chosen language:{language}")
+
+        if language_predicted != language:
+            #Please duplicate and remove this check if you really want this
+            #Or auto-detector fails to identify language (which it can on pretty short text or mixed text)
+            gr.Warning(f"Auto-Predicted Language in prompt (detected: {language_predicted}) does not match language you chose (chosen: {language}) , please choose correct language id. If you think this is incorrect please duplicate this space and modify code.")
+            
+            return (
+                    None,
+                    None,
+                ) 
+
+
+        
         if use_mic == True:
             if mic_file_path is not None:
                 speaker_wav=mic_file_path
@@ -81,6 +112,11 @@ Leave a star on the Github <a href="https://github.com/coqui-ai/TTS">🐸TTS</a>
 <br/>
 <a href="https://huggingface.co/spaces/coqui/xtts?duplicate=true">
 <img style="margin-top: 0em; margin-bottom: 0em" src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>
+</p>
+<p>Language Selectors: 
+Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs,<br/> 
+Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
+Russian: ru, Spanish: es, Turkish: tr <br/> 
 </p>
 """
 
