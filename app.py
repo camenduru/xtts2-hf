@@ -28,7 +28,8 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
         if language_predicted == "zh": 
             #we use zh-cn 
             language_predicted = "zh-cn"
-        print(f"Detected language:{language_predicted}, Chosen language:{language}")
+        #This is for identifying problems only. 
+        print(f"Detected language:{language_predicted}, Chosen language:{language}, text:{prompt}")
 
         if language_predicted != language:
             #Please duplicate and remove this check if you really want this
