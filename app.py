@@ -8,8 +8,18 @@ import langid
 import gradio as gr
 from TTS.api import TTS
 
+HF_TOKEN = os.environ.get("HF_TOKEN")
+from huggingface_hub import HfApi
+# will use api to restart space on a unrecoverable error
+api = HfApi(token=HF_TOKEN)
+repo_id = "coqui/xtts"
+
 tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1")
 tts.to("cuda")
+
+DEVICE_ASSERT_DETECTED=0
+DEVICE_ASSERT_PROMPT=None
+DEVICE_ASSERT_LANG=None
 
 def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
     if agree == True:
@@ -28,7 +38,6 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
         if language_predicted == "zh": 
             #we use zh-cn 
             language_predicted = "zh-cn"
-        #This is for identifying problems only. 
         print(f"Detected language:{language_predicted}, Chosen language:{language}")
 
         if len(prompt)>10:
@@ -42,7 +51,6 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
                         None,
                         None,
                     ) 
-
 
         
         if use_mic == True:
@@ -70,6 +78,13 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
                     None,
                     None,
                 )  
+        global DEVICE_ASSERT_DETECTED
+        if DEVICE_ASSERT_DETECTED:
+            global DEVICE_ASSERT_PROMPT
+            global DEVICE_ASSERT_LANG
+            #we want to know whos caused this error
+            print(f"Unrecoverable exception caused by language:{DEVICE_ASSERT_LANG} prompt:{DEVICE_ASSERT_PROMPT}")
+            
         try:   
             tts.tts_to_file(
                 text=prompt,
@@ -78,14 +93,22 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
                 language=language,
             )
         except RuntimeError as e :
-            if "device-assert" in str(e):
+            if "device-side assert" in str(e):
                 # cannot do anything on cuda device side error, need tor estart
+                print(f"Exit due to: Unrecoverable exception caused by language:{language} prompt:{prompt}", flush=True)
                 gr.Warning("Unhandled Exception encounter, please retry in a minute")
                 print("Cuda device-assert Runtime encountered need restart")
-                sys.exit("Exit due to cuda device-assert")
+                if not DEVICE_ASSERT_DETECTED:
+                    DEVICE_ASSERT_DETECTED=1
+                    DEVICE_ASSERT_PROMPT=prompt
+                    DEVICE_ASSERT_LANG=language
+
+                
+                # HF Space specific.. This error is unrecoverable need to restart space 
+                api.restart_space(repo_id=repo_id)
             else:
+                print("RuntimeError: non device-side assert error:", str(e))
                 raise e
-            
         return (
             gr.make_waveform(
                 audio="output.wav",
