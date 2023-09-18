@@ -308,7 +308,7 @@ gr.Interface(
                     info="Notice: Microphone input may not work properly under traffic",),
         gr.Checkbox(label="Do not use language auto-detect",
                     value=False,
-                    info="Check to disable language detection, if your really intend to",),
+                    info="Check to disable language auto-detection",),
         gr.Checkbox(
             label="Agree",
             value=False,
