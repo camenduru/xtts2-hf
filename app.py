@@ -21,7 +21,7 @@ DEVICE_ASSERT_DETECTED=0
 DEVICE_ASSERT_PROMPT=None
 DEVICE_ASSERT_LANG=None
 
-def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
+def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_auto_detect, agree):
     if agree == True:
         supported_languages=["en","es","fr","de","it","pt","pl","tr","ru","nl","cs","ar","zh-cn"]
 
@@ -40,12 +40,12 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
             language_predicted = "zh-cn"
         print(f"Detected language:{language_predicted}, Chosen language:{language}")
 
-        if len(prompt)>10:
+        if len(prompt)>15:
             #allow any language for short text as some may be common
-            if language_predicted != language:
+            if language_predicted != language and not no_lang_auto_detect:
                 #Please duplicate and remove this check if you really want this
                 #Or auto-detector fails to identify language (which it can on pretty short text or mixed text)
-                gr.Warning(f"Auto-Predicted Language in prompt (detected: {language_predicted}) does not match language you chose (chosen: {language}) , please choose correct language id. If you think this is incorrect please duplicate this space and modify code.")
+                gr.Warning(f"It looks like your text isn’t the language you chose , if you’re sure the text is the same language you chose, please check disable language auto-detection checkbox" )
             
                 return (
                         None,
@@ -73,7 +73,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
                     None,
                 )
         if len(prompt)>200:
-            gr.Warning("Text length limited to 200 characters for this demo, please try shorter text")
+            gr.Warning("Text length limited to 200 characters for this demo, please try shorter text. You can clone this space and edit code for your own usage")
             return (
                     None,
                     None,
@@ -82,7 +82,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, agree):
         if DEVICE_ASSERT_DETECTED:
             global DEVICE_ASSERT_PROMPT
             global DEVICE_ASSERT_LANG
-            #we want to know whos caused this error
+            #It will likely never come here as we restart space on first unrecoverable error now
             print(f"Unrecoverable exception caused by language:{DEVICE_ASSERT_LANG} prompt:{DEVICE_ASSERT_PROMPT}")
             
         try:   
@@ -158,6 +158,7 @@ examples = [
         "examples/female.wav",
         None,
         False,
+        False,
         True,
     ],
     [
@@ -165,6 +166,7 @@ examples = [
         "fr",
         "examples/male.wav",
         None,
+        False,
         False,
         True,
     ],
@@ -174,6 +176,7 @@ examples = [
         "examples/female.wav",
         None,
         False,
+        False,
         True,
     ],
     [
@@ -181,6 +184,7 @@ examples = [
         "es",
         "examples/male.wav",
         None,
+        False,
         False,
         True,
     ],
@@ -190,6 +194,7 @@ examples = [
         "examples/female.wav",
         None,
         False,
+        False,
         True,
     ],
     [
@@ -197,6 +202,7 @@ examples = [
         "pl",
         "examples/male.wav",
         None,
+        False,
         False,
         True,
     ],
@@ -206,6 +212,7 @@ examples = [
         "examples/female.wav",
         None,
         False,
+        False,
         True,
     ],
     [
@@ -213,6 +220,7 @@ examples = [
         "tr",
         "examples/female.wav",
         None,
+        False,
         False,
         True,
     ],
@@ -222,6 +230,7 @@ examples = [
         "examples/female.wav",
         None,
         False,
+        False,
         True,
     ],
     [
@@ -229,6 +238,7 @@ examples = [
         "nl",
         "examples/male.wav",
         None,
+        False,
         False,
         True,
     ],
@@ -238,6 +248,7 @@ examples = [
         "examples/female.wav",
         None,
         False,
+        False,
         True,
     ],
     [
@@ -245,6 +256,7 @@ examples = [
         "zh-cn",
         "examples/female.wav",
         None,
+        False,
         False,
         True,
     ],
@@ -294,6 +306,9 @@ gr.Interface(
         gr.Checkbox(label="Check to use Microphone as Reference",
                     value=False,
                     info="Notice: Microphone input may not work properly under traffic",),
+        gr.Checkbox(label="Do not use language auto-detect",
+                    value=False,
+                    info="Check to disable language detection, if your really intend to",),
         gr.Checkbox(
             label="Agree",
             value=False,
