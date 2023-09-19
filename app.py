@@ -269,7 +269,7 @@ gr.Interface(
     inputs=[
         gr.Textbox(
             label="Text Prompt",
-            info="One or two sentences at a time is better",
+            info="One or two sentences at a time is better. Up to 200 text characters.",
             value="Hi there, I'm your new voice clone. Try your best to upload quality audio",
         ),
         gr.Dropdown(
