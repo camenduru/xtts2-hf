@@ -87,7 +87,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_aut
                     out_filename = mic_file_path + str(uuid.uuid4()) + ".wav"  #ffmpeg to know output format
                     
                     #we will use newer ffmpeg as that has afftn denoise filter
-                    shell_command = f"./ffmpeg -y -i {mic_file_path} -af {lowpass_highpass}{fast_denoise},{trim_silence},loudnorm {out_filename}".split(" ")
+                    shell_command = f"./ffmpeg -y -i {mic_file_path} -af {lowpass_highpass},{fast_denoise},{trim_silence},loudnorm {out_filename}".split(" ")
                     
                     command_result = subprocess.run([item for item in shell_command], capture_output=False,text=True, check=True)
                     speaker_wav=out_filename
