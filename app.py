@@ -78,12 +78,9 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_aut
                 try:
                     # Filtering for microphone input, as it has BG noise, maybe silence in beginning and end
                     # This is fast filtering not perfect
-                    #lowpass_highpass="lowpass=5000,highpass=200" 
-                    
-                    #fast_denoise="afftdn=nr=12:nf=-25"
-                    
+
                     # better to remove silence in beginning and end for microphone
-                    trim_silence="areverse,atrim=start=0.1,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02,areverse,atrim=start=0.1,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02"
+                    trim_silence="areverse,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02,areverse,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02"
 
                     speechnorm="e=6.25:r=0.00001:l=1,"
                     
