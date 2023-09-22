@@ -1,6 +1,7 @@
 import sys
 import os,stat
 import subprocess
+import random
 from zipfile import ZipFile
 
 # By using XTTS you agree to CPML license https://coqui.ai/cpml
@@ -81,7 +82,8 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_aut
                     fast_denoise="afftdn=nr=12:nf=-25"
                     # better to remove silence in beginning and end for microphone
                     trim_silence="areverse,atrim=start=0.2,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02,areverse,atrim=start=0.2,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02"
-                    out_filename = mic_file_path +".wav"  #ffmpeg to know output format
+
+                    out_filename = mic_file_path + str(random.randint(1,9999)) + ".wav"  #ffmpeg to know output format
                     
                     #we will use newer ffmpeg as that has afftn denoise filter
                     shell_command = f"./ffmpeg -y -i {mic_file_path} -af {lowpass_highpass}{fast_denoise},{trim_silence},loudnorm {out_filename}".split(" ")
