@@ -1,22 +1,36 @@
 import sys
-import os
+import os,stat
+import subprocess
+from zipfile import ZipFile
+
 # By using XTTS you agree to CPML license https://coqui.ai/cpml
 os.environ["COQUI_TOS_AGREED"] = "1"
 
+# langid is used to detect language for longer text
+# Most users expect text to be their own language, there is checkbox to disable it
 import langid 
 
 import gradio as gr
 from TTS.api import TTS
-
 HF_TOKEN = os.environ.get("HF_TOKEN")
 from huggingface_hub import HfApi
 # will use api to restart space on a unrecoverable error
 api = HfApi(token=HF_TOKEN)
 repo_id = "coqui/xtts"
 
+# Use never ffmpeg binary for Ubuntu20 to use denoising for microphone input
+print("Export newer ffmpeg binary for denoise filter")
+ZipFile("ffmpeg.zip").extractall()
+print("Make ffmpeg binary executable")
+st = os.stat('ffmpeg')
+os.chmod('ffmpeg', st.st_mode | stat.S_IEXEC)
+
+# Load TTS
 tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1")
 tts.to("cuda")
 
+
+# This is for debugging purposes only
 DEVICE_ASSERT_DETECTED=0
 DEVICE_ASSERT_PROMPT=None
 DEVICE_ASSERT_LANG=None
@@ -35,13 +49,17 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_aut
 
         language_predicted=langid.classify(prompt)[0].strip() # strip need as there is space at end!
 
+        # tts expects chinese as zh-cn
         if language_predicted == "zh": 
             #we use zh-cn 
             language_predicted = "zh-cn"
         print(f"Detected language:{language_predicted}, Chosen language:{language}")
 
+        # After text character length 15 trigger language detection
         if len(prompt)>15:
-            #allow any language for short text as some may be common
+            # allow any language for short text as some may be common
+            # If user unchecks language autodetection it will not trigger
+            # You may remove this completely for own use
             if language_predicted != language and not no_lang_auto_detect:
                 #Please duplicate and remove this check if you really want this
                 #Or auto-detector fails to identify language (which it can on pretty short text or mixed text)
@@ -55,7 +73,26 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_aut
         
         if use_mic == True:
             if mic_file_path is not None:
-                speaker_wav=mic_file_path
+                try:
+                    # Filtering for microphone input, as it has BG noise, maybe silence in beginning and end
+                    # This is fast filtering not perfect
+                    lowpass_highpass="lowpass=1000,highpass=200" #too bass 
+                    
+                    fast_denoise="afftdn=nr=12:nf=-25"
+                    # better to remove silence in beginning and end for microphone
+                    trim_silence="areverse,atrim=start=0.2,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02,areverse,atrim=start=0.2,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02"
+                    out_filename = mic_file_path +".wav"  #ffmpeg to know output format
+                    
+                    #we will use newer ffmpeg as that has afftn denoise filter
+                    shell_command = f"./ffmpeg -y -i {mic_file_path} -af {lowpass_highpass}{fast_denoise},{trim_silence},loudnorm {out_filename}".split(" ")
+                    
+                    command_result = subprocess.run([item for item in shell_command], capture_output=False,text=True, check=True)
+                    speaker_wav=out_filename
+                    print("Filtered microphone input")
+                except subprocess.CalledProcessError:
+                    # There was an error - command exited with non-zero code
+                    print("Error: failed filtering, use original microphone input")
+                    speaker_wav=mic_file_path
             else:
                 gr.Warning("Please record your voice with Microphone, or uncheck Use Microphone to use reference audios")
                 return (
@@ -65,6 +102,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_aut
                 
         else:
             speaker_wav=audio_file_pth
+            
 
         if len(prompt)<2:
             gr.Warning("Please give a longer prompt text")
@@ -324,3 +362,4 @@ gr.Interface(
     article=article,
     examples=examples,
 ).queue().launch(debug=True)
+
