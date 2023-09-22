@@ -80,14 +80,17 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_aut
                     # This is fast filtering not perfect
                     #lowpass_highpass="lowpass=5000,highpass=200" 
                     
-                    fast_denoise="afftdn=nr=12:nf=-25"
+                    #fast_denoise="afftdn=nr=12:nf=-25"
+                    
                     # better to remove silence in beginning and end for microphone
-                    trim_silence="areverse,atrim=start=0.2,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02,areverse,atrim=start=0.2,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02"
+                    trim_silence="areverse,atrim=start=0.1,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02,areverse,atrim=start=0.1,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02"
 
+                    speechnorm="e=6.25:r=0.00001:l=1,"
+                    
                     out_filename = mic_file_path + str(uuid.uuid4()) + ".wav"  #ffmpeg to know output format
                     
                     #we will use newer ffmpeg as that has afftn denoise filter
-                    shell_command = f"./ffmpeg -y -i {mic_file_path} -af {fast_denoise},{trim_silence},loudnorm {out_filename}".split(" ")
+                    shell_command = f"./ffmpeg -y -i {mic_file_path} -af {trim_silence},{speechnorm} {out_filename}".split(" ")
                     
                     command_result = subprocess.run([item for item in shell_command], capture_output=False,text=True, check=True)
                     speaker_wav=out_filename
