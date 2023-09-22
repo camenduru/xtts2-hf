@@ -37,7 +37,7 @@ DEVICE_ASSERT_DETECTED=0
 DEVICE_ASSERT_PROMPT=None
 DEVICE_ASSERT_LANG=None
 
-def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_auto_detect, agree):
+def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_cleanup, no_lang_auto_detect, agree,):
     if agree == True:
         supported_languages=["en","es","fr","de","it","pt","pl","tr","ru","nl","cs","ar","zh-cn"]
 
@@ -45,6 +45,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_aut
             gr.Warning("Language you put in is not in is not in our Supported Languages, please choose from dropdown")
                 
             return (
+                    None,
                     None,
                     None,
                 ) 
@@ -70,52 +71,69 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_aut
                 return (
                         None,
                         None,
+                        None,
                     ) 
 
         
         if use_mic == True:
             if mic_file_path is not None:
-                try:
-                    # Filtering for microphone input, as it has BG noise, maybe silence in beginning and end
-                    # This is fast filtering not perfect
-
-                    # better to remove silence in beginning and end for microphone
-                    trim_silence="areverse,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02,areverse,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02"
-
-                    speechnorm="e=6.25:r=0.00001:l=1,"
-                    
-                    out_filename = mic_file_path + str(uuid.uuid4()) + ".wav"  #ffmpeg to know output format
-                    
-                    #we will use newer ffmpeg as that has afftn denoise filter
-                    shell_command = f"./ffmpeg -y -i {mic_file_path} -af {trim_silence},{speechnorm} {out_filename}".split(" ")
-                    
-                    command_result = subprocess.run([item for item in shell_command], capture_output=False,text=True, check=True)
-                    speaker_wav=out_filename
-                    print("Filtered microphone input")
-                except subprocess.CalledProcessError:
-                    # There was an error - command exited with non-zero code
-                    print("Error: failed filtering, use original microphone input")
-                    speaker_wav=mic_file_path
+               speaker_wav=mic_file_path
             else:
                 gr.Warning("Please record your voice with Microphone, or uncheck Use Microphone to use reference audios")
                 return (
+                    None,
                     None,
                     None,
                 ) 
                 
         else:
             speaker_wav=audio_file_pth
+
+        
+        # Filtering for microphone input, as it has BG noise, maybe silence in beginning and end
+        # This is fast filtering not perfect
+
+        # Apply all on demand
+        lowpassfilter=denoise=trim=loudness=True
+        
+        if lowpassfilter:
+            lowpass_highpass="lowpass=8000,highpass=75," 
+        else:
+            lowpass_highpass=""
+
+        if trim:
+            # better to remove silence in beginning and end for microphone
+            trim_silence="areverse,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02,areverse,silenceremove=start_periods=1:start_silence=0:start_threshold=0.02,"
+        else:
+            trim_silence=""
             
+        if (voice_cleanup):
+            try:
+                out_filename = speaker_wav + str(uuid.uuid4()) + ".wav"  #ffmpeg to know output format
+    
+                #we will use newer ffmpeg as that has afftn denoise filter
+                shell_command = f"./ffmpeg -y -i {speaker_wav} -af {lowpass_highpass}{trim_silence} {out_filename}".split(" ")
+    
+                command_result = subprocess.run([item for item in shell_command], capture_output=False,text=True, check=True)
+                speaker_wav=out_filename
+                print("Filtered microphone input")
+            except subprocess.CalledProcessError:
+                # There was an error - command exited with non-zero code
+                print("Error: failed filtering, use original microphone input")
+        else:
+            speaker_wav=speaker_wav
 
         if len(prompt)<2:
             gr.Warning("Please give a longer prompt text")
             return (
                     None,
                     None,
+                    None,
                 )
         if len(prompt)>200:
             gr.Warning("Text length limited to 200 characters for this demo, please try shorter text. You can clone this space and edit code for your own usage")
             return (
+                    None,
                     None,
                     None,
                 )  
@@ -155,10 +173,12 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic,no_lang_aut
                 audio="output.wav",
             ),
             "output.wav",
+            speaker_wav,
         )
     else:
         gr.Warning("Please accept the Terms & Condition!")
         return (
+                None,
                 None,
                 None,
             ) 
@@ -200,7 +220,9 @@ examples = [
         None,
         False,
         False,
+        False,
         True,
+
     ],
     [
         "Lorsque j'avais six ans j'ai vu, une fois, une magnifique image",
@@ -209,13 +231,16 @@ examples = [
         None,
         False,
         False,
+        False,
         True,
+        False,
     ],
     [
         "Als ich sechs war, sah ich einmal ein wunderbares Bild",
         "de",
         "examples/female.wav",
         None,
+        False,
         False,
         False,
         True,
@@ -227,6 +252,7 @@ examples = [
         None,
         False,
         False,
+        False,
         True,
     ],
     [
@@ -234,6 +260,7 @@ examples = [
         "pt",
         "examples/female.wav",
         None,
+        False,
         False,
         False,
         True,
@@ -245,6 +272,7 @@ examples = [
         None,
         False,
         False,
+        False,
         True,
     ],
     [
@@ -252,6 +280,7 @@ examples = [
         "it",
         "examples/female.wav",
         None,
+       False,
         False,
         False,
         True,
@@ -263,6 +292,7 @@ examples = [
         None,
         False,
         False,
+        False,
         True,
     ],
     [
@@ -270,6 +300,7 @@ examples = [
         "ru",
         "examples/female.wav",
         None,
+       False,
         False,
         False,
         True,
@@ -279,6 +310,7 @@ examples = [
         "nl",
         "examples/male.wav",
         None,
+       False,
         False,
         False,
         True,
@@ -288,6 +320,7 @@ examples = [
         "cs",
         "examples/female.wav",
         None,
+       False,
         False,
         False,
         True,
@@ -297,6 +330,7 @@ examples = [
         "zh-cn",
         "examples/female.wav",
         None,
+       False,
         False,
         False,
         True,
@@ -344,9 +378,13 @@ gr.Interface(
                  type="filepath",
                  info="Use your microphone to record audio",
                  label="Use Microphone for Reference"),
-        gr.Checkbox(label="Check to use Microphone as Reference",
+        gr.Checkbox(label="Use Microphone",
                     value=False,
                     info="Notice: Microphone input may not work properly under traffic",),
+        gr.Checkbox(label="Cleanup Reference Voice",
+                    value=False,
+                    info="This check can improve output if your microphone or reference voice is noisy",
+                    ),
         gr.Checkbox(label="Do not use language auto-detect",
                     value=False,
                     info="Check to disable language auto-detection",),
@@ -355,14 +393,16 @@ gr.Interface(
             value=False,
             info="I agree to the terms of the Coqui Public Model License at https://coqui.ai/cpml",
         ),
+
+        
     ],
     outputs=[
         gr.Video(label="Waveform Visual"),
         gr.Audio(label="Synthesised Audio"),
+        gr.Audio(label="Reference Audio Used"),
     ],
     title=title,
     description=description,
     article=article,
     examples=examples,
 ).queue().launch(debug=True)
-
