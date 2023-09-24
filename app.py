@@ -187,7 +187,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
 title = "Coqui🐸 XTTS"
 
 description = """
-<a href="https://huggingface.co/coqui/XTTS-v1">XTTS</a> is a Voice generation model that lets you clone voices into different languages by using just a quick 3-second audio clip. 
+<a href="https://huggingface.co/coqui/XTTS-v1">XTTS</a> is a Voice generation model that lets you clone voices into different languages by using just a quick 6-second audio clip. 
 <br/>
 XTTS is built on previous research, like Tortoise, with additional architectural innovations and training to make cross-language voice cloning and multilingual speech generation possible. 
 <br/>
