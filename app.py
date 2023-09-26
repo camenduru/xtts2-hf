@@ -205,6 +205,7 @@ Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs,<br/>
 Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
 Russian: ru, Spanish: es, Turkish: tr <br/> 
 </p>
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=f3d15adf-0944-4cf3-ba8c-9c9a6862759c" />
 """
 
 article = """
