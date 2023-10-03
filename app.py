@@ -148,8 +148,8 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
             tts.tts_to_file(
                 text=prompt,
                 file_path="output.wav",
-                speaker_wav=speaker_wav,
                 language=language,
+                speaker_wav=speaker_wav,
             )
         except RuntimeError as e :
             if "device-side assert" in str(e):
