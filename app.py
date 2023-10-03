@@ -215,7 +215,7 @@ article = """
 """
 examples = [
     [
-        "When I was six years old I saw a magnificent picture",
+        "Once when I was six years old I saw a magnificent picture",
         "en",
         "examples/female.wav",
         None,
