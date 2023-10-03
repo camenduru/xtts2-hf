@@ -1,6 +1,5 @@
 pip==23.2.1
 cython==0.29.30
-setuptools==68.2.2
 scikit-learn==1.3.0
-TTS@ git+https://github.com/coqui-ai/tts.git@aa8fa4756e9130e536f0dfc610617db103a43efd
+TTS@ git+https://github.com/coqui-ai/tts.git@155c5fc0bde77c6ace1e6e6982da2b13f19ddd2f
 langid
