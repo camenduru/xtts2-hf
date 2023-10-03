@@ -1,5 +1,5 @@
 pip==23.2.1
 cython==0.29.30
 scikit-learn==1.3.0
-TTS
+TTS==0.17.4
 langid
