@@ -399,7 +399,7 @@ gr.Interface(
     ],
     outputs=[
         gr.Video(label="Waveform Visual"),
-        gr.Audio(label="Synthesised Audio"),
+        gr.Audio(label="Synthesised Audio", autoplay=True),
         gr.Audio(label="Reference Audio Used"),
     ],
     title=title,
