@@ -54,4 +54,6 @@ encodec==0.1.*
 unidecode==1.3.*
 langid
 # Install tts
-TTS==0.17.4
+git+https://github.com/coqui-ai/tts.git@1ec341857e33e0c8b1cc10c23666a6c638c52855
+deepspeed==0.8.3
+pydub
