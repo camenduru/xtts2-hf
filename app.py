@@ -1,10 +1,12 @@
 import sys
-import os,stat
+import io, os, stat
 import subprocess
 import random
 from zipfile import ZipFile
 import uuid 
-
+import time
+import torch
+import torchaudio
 # By using XTTS you agree to CPML license https://coqui.ai/cpml
 os.environ["COQUI_TOS_AGREED"] = "1"
 
@@ -13,9 +15,18 @@ os.environ["COQUI_TOS_AGREED"] = "1"
 import langid 
 
 import gradio as gr
+from scipy.io.wavfile import write
+from pydub import AudioSegment
+
 from TTS.api import TTS
+from TTS.tts.configs.xtts_config import XttsConfig
+from TTS.tts.models.xtts import Xtts
+from TTS.utils.generic_utils import get_user_data_dir
+
 HF_TOKEN = os.environ.get("HF_TOKEN")
+
 from huggingface_hub import HfApi
+
 # will use api to restart space on a unrecoverable error
 api = HfApi(token=HF_TOKEN)
 repo_id = "coqui/xtts"
@@ -29,8 +40,19 @@ os.chmod('ffmpeg', st.st_mode | stat.S_IEXEC)
 
 # Load TTS
 tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1")
-tts.to("cuda")
 
+model_path = os.path.join(get_user_data_dir("tts"), "tts_models--multilingual--multi-dataset--xtts_v1")
+config = XttsConfig()
+config.load_json(os.path.join(model_path, "config.json"))
+model = Xtts.init_from_config(config)
+model.load_checkpoint(
+    config,
+    checkpoint_path=os.path.join(model_path, "model.pth"),
+    vocab_path=os.path.join(model_path, "vocab.json"),
+    eval=True,
+    use_deepspeed=True
+)
+model.cuda()
 
 # This is for debugging purposes only
 DEVICE_ASSERT_DETECTED=0
@@ -40,11 +62,12 @@ DEVICE_ASSERT_LANG=None
 def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_cleanup, no_lang_auto_detect, agree,):
     if agree == True:
         supported_languages=["en","es","fr","de","it","pt","pl","tr","ru","nl","cs","ar","zh-cn"]
-
+        
         if language not in supported_languages:
-            gr.Warning("Language you put in is not in is not in our Supported Languages, please choose from dropdown")
+            gr.Warning(f"Language you put {language} in is not in is not in our Supported Languages, please choose from dropdown")
                 
             return (
+                    None,
                     None,
                     None,
                     None,
@@ -72,6 +95,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
                         None,
                         None,
                         None,
+                        None,
                     ) 
 
         
@@ -81,6 +105,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
             else:
                 gr.Warning("Please record your voice with Microphone, or uncheck Use Microphone to use reference audios")
                 return (
+                    None,
                     None,
                     None,
                     None,
@@ -129,10 +154,12 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
                     None,
                     None,
                     None,
+                    None,
                 )
         if len(prompt)>200:
             gr.Warning("Text length limited to 200 characters for this demo, please try shorter text. You can clone this space and edit code for your own usage")
             return (
+                    None,
                     None,
                     None,
                     None,
@@ -145,12 +172,33 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
             print(f"Unrecoverable exception caused by language:{DEVICE_ASSERT_LANG} prompt:{DEVICE_ASSERT_PROMPT}")
             
         try:   
-            tts.tts_to_file(
-                text=prompt,
-                file_path="output.wav",
-                language=language,
-                speaker_wav=speaker_wav,
+            metrics_text=""
+            t_latent=time.time()
+            
+            # note diffusion_conditioning not used on hifigan (default mode), it will be empty but need to pass it to model.inference
+            gpt_cond_latent, diffusion_conditioning, speaker_embedding = model.get_conditioning_latents(audio_path=speaker_wav)
+            latent_calculation_time = time.time() - t_latent
+            #metrics_text=f"Embedding calculation time: {latent_calculation_time:.2f} seconds\n"
+            
+            wav_chunks = []
+    
+            print("I: Generating new audio...")
+            t0 = time.time()
+            out = model.inference(
+                prompt,
+                language,
+                gpt_cond_latent,
+                speaker_embedding,
+                diffusion_conditioning
             )
+            inference_time = time.time() - t0
+            print(f"I: Time to generate audio: {round(inference_time*1000)} milliseconds")
+            metrics_text+=f"Time to generate audio: {round(inference_time*1000)} milliseconds\n"
+            real_time_factor= (time.time() - t0) / out['wav'].shape[-1] * 24000
+            print(f"Real-time factor (RTF): {real_time_factor}")
+            metrics_text+=f"Real-time factor (RTF): {real_time_factor:.2f}\n"
+            torchaudio.save("output.wav", torch.tensor(out["wav"]).unsqueeze(0), 24000)
+            
         except RuntimeError as e :
             if "device-side assert" in str(e):
                 # cannot do anything on cuda device side error, need tor estart
@@ -173,11 +221,13 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
                 audio="output.wav",
             ),
             "output.wav",
+            metrics_text,
             speaker_wav,
         )
     else:
         gr.Warning("Please accept the Terms & Condition!")
         return (
+                None,
                 None,
                 None,
                 None,
@@ -205,7 +255,7 @@ Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs,<br/>
 Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
 Russian: ru, Spanish: es, Turkish: tr <br/> 
 </p>
-<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=f3d15adf-0944-4cf3-ba8c-9c9a6862759c" />
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=8946ef36-c454-4a8e-a9c9-8a8dd735fabd" />
 """
 
 article = """
@@ -234,7 +284,6 @@ examples = [
         False,
         False,
         True,
-        False,
     ],
     [
         "Als ich sechs war, sah ich einmal ein wunderbares Bild",
@@ -399,7 +448,8 @@ gr.Interface(
     ],
     outputs=[
         gr.Video(label="Waveform Visual"),
-        gr.Audio(label="Synthesised Audio", autoplay=True),
+        gr.Audio(label="Synthesised Audio",autoplay=True),
+        gr.Text(label="Metrics"),
         gr.Audio(label="Reference Audio Used"),
     ],
     title=title,
