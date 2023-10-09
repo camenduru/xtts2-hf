@@ -237,6 +237,13 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
 title = "Coqui🐸 XTTS"
 
 description = """
+<div>
+<a style="display:inline-block" href='https://github.com/coqui-ai/TTS'><img src='https://img.shields.io/github/stars/coqui-ai/TTS?style=social' /></a>
+<a style='display:inline-block' href='https://discord.gg/5eXr5seRrv'><img src='https://discord.com/api/guilds/1037326658807533628/widget.png?style=shield' /></a>
+<a href="https://huggingface.co/spaces/coqui/xtts?duplicate=true">
+<img style="margin-top: 0em; margin-bottom: 0em" src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>
+</div>
+
 <a href="https://huggingface.co/coqui/XTTS-v1">XTTS</a> is a Voice generation model that lets you clone voices into different languages by using just a quick 6-second audio clip. 
 <br/>
 XTTS is built on previous research, like Tortoise, with additional architectural innovations and training to make cross-language voice cloning and multilingual speech generation possible. 
@@ -247,8 +254,6 @@ Leave a star on the Github <a href="https://github.com/coqui-ai/TTS">🐸TTS</a>
 <br/>
 <p>For faster inference without waiting in the queue, you should duplicate this space and upgrade to GPU via the settings.
 <br/>
-<a href="https://huggingface.co/spaces/coqui/xtts?duplicate=true">
-<img style="margin-top: 0em; margin-bottom: 0em" src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>
 </p>
 <p>Language Selectors: 
 Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs,<br/> 
