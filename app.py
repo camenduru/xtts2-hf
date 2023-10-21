@@ -44,6 +44,11 @@ tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1.1")
 model_path = os.path.join(get_user_data_dir("tts"), "tts_models--multilingual--multi-dataset--xtts_v1.1")
 config = XttsConfig()
 config.load_json(os.path.join(model_path, "config.json"))
+
+if "ja-jp" not in config.languages:
+    #fix to have JP before next TTS update
+    config.languages.append("ja-jp")
+
 model = Xtts.init_from_config(config)
 model.load_checkpoint(
     config,
@@ -61,7 +66,7 @@ DEVICE_ASSERT_LANG=None
 
 def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_cleanup, no_lang_auto_detect, agree,):
     if agree == True:
-        supported_languages=["en","es","fr","de","it","pt","pl","tr","ru","nl","cs","ar","zh-cn"]
+        supported_languages=["en","es","fr","de","it","pt","pl","tr","ru","nl","cs","ar","zh-cn","ja-jp"]
         
         if language not in supported_languages:
             gr.Warning(f"Language you put {language} in is not in is not in our Supported Languages, please choose from dropdown")
@@ -79,6 +84,13 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
         if language_predicted == "zh": 
             #we use zh-cn 
             language_predicted = "zh-cn"
+
+        if language_predicted == "ja": 
+            #we use zh-cn 
+            language_predicted = "ja-jp"
+        if language == "ja":
+            language = "ja-jp"
+            
         print(f"Detected language:{language_predicted}, Chosen language:{language}")
 
         # After text character length 15 trigger language detection
@@ -387,6 +399,16 @@ examples = [
         None,
        False,
         False,
+        False,
+        True,
+    ],
+    [
+        "かつて6歳のとき、素晴らしい絵を見ました",
+        "ja-jp",
+        "examples/female.wav",
+        None,
+        False,
+        True,
         False,
         True,
     ],
