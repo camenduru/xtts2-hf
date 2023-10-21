@@ -441,6 +441,7 @@ gr.Interface(
                 "cs",
                 "ar",
                 "zh-cn",
+                "ja-jp"
             ],
             max_choices=1,
             value="en",
