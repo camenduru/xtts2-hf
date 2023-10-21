@@ -58,3 +58,5 @@ git+https://github.com/coqui-ai/tts.git@v0.18.1
 deepspeed==0.8.3
 pydub
 cutlet
+mecab-python3==1.0.6
+unidic-lite==1.0.8
