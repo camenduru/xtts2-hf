@@ -267,7 +267,7 @@ Leave a star on the Github <a href="https://github.com/coqui-ai/TTS">🐸TTS</a>
 <p>Language Selectors: 
 Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs,<br/> 
 Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
-Russian: ru, Spanish: es, Turkish: tr <br/> 
+Russian: ru, Spanish: es, Turkish: tr, Japanese: ja <br/> 
 </p>
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=8946ef36-c454-4a8e-a9c9-8a8dd735fabd" />
 """
