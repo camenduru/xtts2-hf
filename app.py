@@ -38,10 +38,14 @@ print("Make ffmpeg binary executable")
 st = os.stat('ffmpeg')
 os.chmod('ffmpeg', st.st_mode | stat.S_IEXEC)
 
-# Load TTS
-tts = TTS("tts_models/multilingual/multi-dataset/xtts_v1.1")
+# This will trigger downloading model
+print("Downloading if not downloaded Coqui XTTS V1.1")
+from TTS.utils.manage import ModelManager
+model_name = "tts_models/multilingual/multi-dataset/xtts_v1.1"
+ModelManager().download_model(model_name)
+model_path = os.path.join(get_user_data_dir("tts"), model_name.replace("/", "--"))
+print("XTTS downloaded")
 
-model_path = os.path.join(get_user_data_dir("tts"), "tts_models--multilingual--multi-dataset--xtts_v1.1")
 config = XttsConfig()
 config.load_json(os.path.join(model_path, "config.json"))
 
