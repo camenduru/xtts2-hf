@@ -273,7 +273,7 @@ Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs,<br/>
 Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
 Russian: ru, Spanish: es, Turkish: tr, Japanese: ja <br/> 
 </p>
-<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=8946ef36-c454-4a8e-a9c9-8a8dd735fabd" />
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=0d00920c-8cc9-4bf3-90f2-a615797e5f59" />
 """
 
 article = """
