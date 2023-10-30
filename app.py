@@ -334,6 +334,7 @@ Russian: ru, Spanish: es, Turkish: tr, Japanese: ja <br/>
 article = """
 <div style='margin:20px auto;'>
 <p>By using this demo you agree to the terms of the Coqui Public Model License at https://coqui.ai/cpml</p>
+<p>We collect data only for error cases for improvement.</p>
 </div>
 """
 examples = [
