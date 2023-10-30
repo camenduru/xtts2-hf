@@ -201,12 +201,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
                 if "Failed to decode" in str(e):
                     print("Speaker encoding error", str(e))
                     gr.Warning("It appears something wrong with reference, did you unmute your microphone?")
-                    return (
-                        None,
-                        None,
-                        None,
-                        None,
-                    ) 
+                    
             
             latent_calculation_time = time.time() - t_latent
             #metrics_text=f"Embedding calculation time: {latent_calculation_time:.2f} seconds\n"
@@ -276,8 +271,12 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
                 # HF Space specific.. This error is unrecoverable need to restart space 
                 api.restart_space(repo_id=repo_id)
             else:
-                print("RuntimeError: non device-side assert error:", str(e))
-                gr.Warning("Something unexpected happened please retry again.")
+                if "Failed to decode" in str(e):
+                    print("Speaker encoding error", str(e))
+                    gr.Warning("It appears something wrong with reference, did you unmute your microphone?")
+                else:
+                    print("RuntimeError: non device-side assert error:", str(e))
+                    gr.Warning("Something unexpected happened please retry again.")
                 return (
                         None,
                         None,
