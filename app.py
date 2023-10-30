@@ -198,10 +198,15 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
             try:
                 gpt_cond_latent, diffusion_conditioning, speaker_embedding = model.get_conditioning_latents(audio_path=speaker_wav)
             except Exception as e:
-                if "Failed to decode" in str(e):
-                    print("Speaker encoding error", str(e))
-                    gr.Warning("It appears something wrong with reference, did you unmute your microphone?")
-                    
+                print("Speaker encoding error", str(e))
+                gr.Warning("It appears something wrong with reference, did you unmute your microphone?")
+                return (
+                    None,
+                    None,
+                    None,
+                    None,
+                ) 
+                
             
             latent_calculation_time = time.time() - t_latent
             #metrics_text=f"Embedding calculation time: {latent_calculation_time:.2f} seconds\n"
