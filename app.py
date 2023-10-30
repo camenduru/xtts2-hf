@@ -13,6 +13,10 @@ os.environ["COQUI_TOS_AGREED"] = "1"
 # langid is used to detect language for longer text
 # Most users expect text to be their own language, there is checkbox to disable it
 import langid 
+import base64
+import csv
+from io import StringIO
+import datetime
 
 import gradio as gr
 from scipy.io.wavfile import write
@@ -67,6 +71,8 @@ model.cuda()
 DEVICE_ASSERT_DETECTED=0
 DEVICE_ASSERT_PROMPT=None
 DEVICE_ASSERT_LANG=None
+
+
 
 #supported_languages=["en","es","fr","de","it","pt","pl","tr","ru","nl","cs","ar","zh-cn"]
 supported_languages=config.languages
@@ -189,7 +195,19 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
             t_latent=time.time()
             
             # note diffusion_conditioning not used on hifigan (default mode), it will be empty but need to pass it to model.inference
-            gpt_cond_latent, diffusion_conditioning, speaker_embedding = model.get_conditioning_latents(audio_path=speaker_wav)
+            try:
+                gpt_cond_latent, diffusion_conditioning, speaker_embedding = model.get_conditioning_latents(audio_path=speaker_wav)
+            except Exception as e:
+                if "Failed to decode" in str(e):
+                    print("Speaker encoding error", str(e))
+                    gr.Warning("It appears something wrong with reference, did you unmute your microphone?")
+                    return (
+                        None,
+                        None,
+                        None,
+                        None,
+                    ) 
+            
             latent_calculation_time = time.time() - t_latent
             #metrics_text=f"Embedding calculation time: {latent_calculation_time:.2f} seconds\n"
             
@@ -212,7 +230,6 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
             print(f"Real-time factor (RTF): {real_time_factor}")
             metrics_text+=f"Real-time factor (RTF): {real_time_factor:.2f}\n"
             torchaudio.save("output.wav", torch.tensor(out["wav"]).unsqueeze(0), 24000)
-            
         except RuntimeError as e :
             if "device-side assert" in str(e):
                 # cannot do anything on cuda device side error, need tor estart
@@ -223,13 +240,50 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
                     DEVICE_ASSERT_DETECTED=1
                     DEVICE_ASSERT_PROMPT=prompt
                     DEVICE_ASSERT_LANG=language
-
+                    
+                # just before restarting save what caused the issue so we can handle it in future
+                # Uploading Error data only happens for unrecovarable error
+                error_time = datetime.datetime.now().strftime('%d-%m-%Y-%H:%M:%S')
+                error_data = [error_time, prompt, language, audio_file_pth, mic_file_path, use_mic, voice_cleanup, no_lang_auto_detect, agree]
+                error_data = [str(e) if type(e)!=str else e for e in error_data]
+                print(error_data)
+                print(speaker_wav)
+                write_io = StringIO()
+                csv.writer(write_io).writerows(error_data)
+                csv_upload= write_io.getvalue().encode()
+    
+                filename =  error_time+"_" + str(uuid.uuid4()) +".csv"
+                print("Writing error csv")
+                error_api = HfApi()
+                error_api.upload_file(
+                    path_or_fileobj=csv_upload,
+                    path_in_repo=filename,
+                    repo_id="coqui/xtts-flagged-dataset",
+                    repo_type="dataset",
+                )
                 
+                #speaker_wav
+                print("Writing error reference audio")
+                speaker_filename =  error_time+"_reference_"+ str(uuid.uuid4()) +".wav"
+                error_api = HfApi()
+                error_api.upload_file(
+                    path_or_fileobj=speaker_wav,
+                    path_in_repo=speaker_filename,
+                    repo_id="coqui/xtts-flagged-dataset",
+                    repo_type="dataset",
+                )
+
                 # HF Space specific.. This error is unrecoverable need to restart space 
                 api.restart_space(repo_id=repo_id)
             else:
                 print("RuntimeError: non device-side assert error:", str(e))
-                raise e
+                gr.Warning("Something unexpected happened please retry again.")
+                return (
+                        None,
+                        None,
+                        None,
+                        None,
+                    ) 
         return (
             gr.make_waveform(
                 audio="output.wav",
