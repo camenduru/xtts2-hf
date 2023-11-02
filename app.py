@@ -249,7 +249,7 @@ def predict(prompt, language, audio_file_pth, mic_file_path, use_mic, voice_clea
                 print(error_data)
                 print(speaker_wav)
                 write_io = StringIO()
-                csv.writer(write_io).writerows(error_data)
+                csv.writer(write_io).writerows([error_data])
                 csv_upload= write_io.getvalue().encode()
     
                 filename =  error_time+"_" + str(uuid.uuid4()) +".csv"
