@@ -545,4 +545,4 @@ gr.Interface(
     description=description,
     article=article,
     examples=examples,
-).queue().launch(debug=True,show_api=False)
+).queue().launch(debug=True,show_api=True)
