@@ -394,7 +394,7 @@ description = """
 <img style="margin-top: 0em; margin-bottom: 0em" src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>
 </div>
 
-<a href="https://huggingface.co/coqui/XTTS-v1">XTTS</a> is a Voice generation model that lets you clone voices into different languages by using just a quick 6-second audio clip. 
+<a href="https://huggingface.co/coqui/XTTS-v2">XTTS</a> is a Voice generation model that lets you clone voices into different languages by using just a quick 6-second audio clip. 
 <br/>
 XTTS is built on previous research, like Tortoise, with additional architectural innovations and training to make cross-language voice cloning and multilingual speech generation possible. 
 <br/>
@@ -409,6 +409,8 @@ Leave a star on the Github <a href="https://github.com/coqui-ai/TTS">🐸TTS</a>
 Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs,<br/> 
 Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
 Russian: ru, Spanish: es, Turkish: tr, Japanese: ja <br/> 
+Korean: ko, Hungarian: hu <br/> 
+
 </p>
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=0d00920c-8cc9-4bf3-90f2-a615797e5f59" />
 """
@@ -550,6 +552,26 @@ examples = [
         False,
         True,
     ],
+    [
+        "한번은 내가 여섯 살이었을 때 멋진 그림을 보았습니다.",
+        "ko",
+        "examples/female.wav",
+        None,
+        False,
+        True,
+        False,
+        True,
+    ],
+        [
+        "Egyszer hat éves koromban láttam egy csodálatos képet",
+        "hu",
+        "examples/male.wav",
+        None,
+        False,
+        True,
+        False,
+        True,
+    ],
 ]
 
 
@@ -579,6 +601,8 @@ gr.Interface(
                 "ar",
                 "zh-cn",
                 "ja",
+                "ko",
+                "hu"
             ],
             max_choices=1,
             value="en",
