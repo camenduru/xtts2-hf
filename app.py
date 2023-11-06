@@ -406,11 +406,8 @@ Leave a star on the Github <a href="https://github.com/coqui-ai/TTS">🐸TTS</a>
 <br/>
 </p>
 <p>Language Selectors: 
-Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs,<br/> 
-Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
-Russian: ru, Spanish: es, Turkish: tr, Japanese: ja <br/> 
-Korean: ko, Hungarian: hu <br/> 
-
+Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs, Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
+Russian: ru, Spanish: es, Turkish: tr, Japanese: ja, Korean: ko, Hungarian: hu <br/> 
 </p>
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=0d00920c-8cc9-4bf3-90f2-a615797e5f59" />
 """
