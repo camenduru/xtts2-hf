@@ -44,20 +44,16 @@ st = os.stat("ffmpeg")
 os.chmod("ffmpeg", st.st_mode | stat.S_IEXEC)
 
 # This will trigger downloading model
-print("Downloading if not downloaded Coqui XTTS V1.1")
+print("Downloading if not downloaded Coqui XTTS V2")
 from TTS.utils.manage import ModelManager
 
-model_name = "tts_models/multilingual/multi-dataset/xtts_v1.1"
+model_name = "tts_models/multilingual/multi-dataset/xtts_v2"
 ModelManager().download_model(model_name)
 model_path = os.path.join(get_user_data_dir("tts"), model_name.replace("/", "--"))
 print("XTTS downloaded")
 
 config = XttsConfig()
 config.load_json(os.path.join(model_path, "config.json"))
-
-# it should be there just to be sure
-if "ja" not in config.languages:
-    config.languages.append("ja")
 
 model = Xtts.init_from_config(config)
 model.load_checkpoint(
@@ -74,10 +70,7 @@ DEVICE_ASSERT_DETECTED = 0
 DEVICE_ASSERT_PROMPT = None
 DEVICE_ASSERT_LANG = None
 
-
-# supported_languages=["en","es","fr","de","it","pt","pl","tr","ru","nl","cs","ar","zh-cn"]
 supported_languages = config.languages
-
 
 def predict(
     prompt,
@@ -254,8 +247,7 @@ def predict(
                 language,
                 gpt_cond_latent,
                 speaker_embedding,
-                diffusion_conditioning,
-                decoder="ne_hifigan",
+                diffusion_conditioning
             )
             inference_time = time.time() - t0
             print(f"I: Time to generate audio: {round(inference_time*1000)} milliseconds")
@@ -272,8 +264,7 @@ def predict(
                 prompt,
                 language,
                 gpt_cond_latent,
-                speaker_embedding,
-                decoder="ne_hifigan",
+                speaker_embedding
             )
 
             first_chunk = True
