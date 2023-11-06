@@ -288,9 +288,9 @@ def predict(
             print(
                 f"I: Time to generate audio: {round(inference_time*1000)} milliseconds"
             )
-            metrics_text += (
-                f"Time to generate audio: {round(inference_time*1000)} milliseconds\n"
-            )
+            #metrics_text += (
+            #    f"Time to generate audio: {round(inference_time*1000)} milliseconds\n"
+            #)
             
             wav = torch.cat(wav_chunks, dim=0)
             print(wav.shape)
