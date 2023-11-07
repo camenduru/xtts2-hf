@@ -265,7 +265,7 @@ def predict(
                 gpt_cond_latent,
                 speaker_embedding,
                 #repetition_penalty=5.0,
-                #temperature=0.75,
+                temperature=0.85,
             )
 
             first_chunk = True
