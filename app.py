@@ -238,7 +238,7 @@ def predict(
             # metrics_text=f"Embedding calculation time: {latent_calculation_time:.2f} seconds\n"
 
             # temporary comma fix
-            prompt= re.sub("([^\x00-\x7F]|\w)(\.|\。|\?)",r"\1 \2",prompt)
+            prompt= re.sub("([^\x00-\x7F]|\w)(\.|\。|\?)",r"\1 \2\2",prompt)
             
             wav_chunks = []
             ## Direct mode
