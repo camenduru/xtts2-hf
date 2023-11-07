@@ -44,16 +44,20 @@ st = os.stat("ffmpeg")
 os.chmod("ffmpeg", st.st_mode | stat.S_IEXEC)
 
 # This will trigger downloading model
-print("Downloading if not downloaded Coqui XTTS V2")
+print("Downloading if not downloaded Coqui XTTS V1.1")
 from TTS.utils.manage import ModelManager
 
-model_name = "tts_models/multilingual/multi-dataset/xtts_v2"
+model_name = "tts_models/multilingual/multi-dataset/xtts_v1.1"
 ModelManager().download_model(model_name)
 model_path = os.path.join(get_user_data_dir("tts"), model_name.replace("/", "--"))
 print("XTTS downloaded")
 
 config = XttsConfig()
 config.load_json(os.path.join(model_path, "config.json"))
+
+# it should be there just to be sure
+if "ja" not in config.languages:
+    config.languages.append("ja")
 
 model = Xtts.init_from_config(config)
 model.load_checkpoint(
@@ -70,7 +74,10 @@ DEVICE_ASSERT_DETECTED = 0
 DEVICE_ASSERT_PROMPT = None
 DEVICE_ASSERT_LANG = None
 
+
+# supported_languages=["en","es","fr","de","it","pt","pl","tr","ru","nl","cs","ar","zh-cn"]
 supported_languages = config.languages
+
 
 def predict(
     prompt,
@@ -247,7 +254,8 @@ def predict(
                 language,
                 gpt_cond_latent,
                 speaker_embedding,
-                diffusion_conditioning
+                diffusion_conditioning,
+                decoder="ne_hifigan",
             )
             inference_time = time.time() - t0
             print(f"I: Time to generate audio: {round(inference_time*1000)} milliseconds")
@@ -264,7 +272,8 @@ def predict(
                 prompt,
                 language,
                 gpt_cond_latent,
-                speaker_embedding
+                speaker_embedding,
+                decoder="ne_hifigan",
             )
 
             first_chunk = True
@@ -394,7 +403,7 @@ description = """
 <img style="margin-top: 0em; margin-bottom: 0em" src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>
 </div>
 
-<a href="https://huggingface.co/coqui/XTTS-v2">XTTS</a> is a Voice generation model that lets you clone voices into different languages by using just a quick 6-second audio clip. 
+<a href="https://huggingface.co/coqui/XTTS-v1">XTTS</a> is a Voice generation model that lets you clone voices into different languages by using just a quick 6-second audio clip. 
 <br/>
 XTTS is built on previous research, like Tortoise, with additional architectural innovations and training to make cross-language voice cloning and multilingual speech generation possible. 
 <br/>
@@ -406,8 +415,9 @@ Leave a star on the Github <a href="https://github.com/coqui-ai/TTS">🐸TTS</a>
 <br/>
 </p>
 <p>Language Selectors: 
-Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs, Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
-Russian: ru, Spanish: es, Turkish: tr, Japanese: ja, Korean: ko, Hungarian: hu <br/> 
+Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs,<br/> 
+Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
+Russian: ru, Spanish: es, Turkish: tr, Japanese: ja <br/> 
 </p>
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=0d00920c-8cc9-4bf3-90f2-a615797e5f59" />
 """
@@ -549,26 +559,6 @@ examples = [
         False,
         True,
     ],
-    [
-        "한번은 내가 여섯 살이었을 때 멋진 그림을 보았습니다.",
-        "ko",
-        "examples/female.wav",
-        None,
-        False,
-        True,
-        False,
-        True,
-    ],
-        [
-        "Egyszer hat éves koromban láttam egy csodálatos képet",
-        "hu",
-        "examples/male.wav",
-        None,
-        False,
-        True,
-        False,
-        True,
-    ],
 ]
 
 
@@ -598,8 +588,6 @@ gr.Interface(
                 "ar",
                 "zh-cn",
                 "ja",
-                "ko",
-                "hu"
             ],
             max_choices=1,
             value="en",
@@ -648,4 +636,3 @@ gr.Interface(
     article=article,
     examples=examples,
 ).queue().launch(debug=True, show_api=True)
-
