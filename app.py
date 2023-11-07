@@ -219,7 +219,6 @@ def predict(
             try:
                 (
                     gpt_cond_latent,
-                    diffusion_conditioning,
                     speaker_embedding,
                 ) = model.get_conditioning_latents(audio_path=speaker_wav)
             except Exception as e:
