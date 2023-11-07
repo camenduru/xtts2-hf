@@ -18,6 +18,7 @@ import base64
 import csv
 from io import StringIO
 import datetime
+import re 
 
 import gradio as gr
 from scipy.io.wavfile import write
@@ -235,6 +236,9 @@ def predict(
 
             latent_calculation_time = time.time() - t_latent
             # metrics_text=f"Embedding calculation time: {latent_calculation_time:.2f} seconds\n"
+
+            # temporary comma fix
+            prompt= re.sub("([^\x00-\x7F]|\w)(\.|\。|\?)",r"\1 \2",prompt)
             
             wav_chunks = []
             ## Direct mode
