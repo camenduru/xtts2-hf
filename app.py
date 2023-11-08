@@ -694,4 +694,5 @@ with gr.Blocks(analytics_enabled=False) as demo:
 
     tts_button.click(predict, [input_text_gr, language_gr, ref_gr, mic_gr, use_mic_gr, clean_ref_gr, auto_det_lang_gr, tos_gr], outputs=[video_gr, audio_gr, out_text_gr, ref_audio_gr])
 
+demo.queue()  
 demo.launch(debug=True, show_api=True)
