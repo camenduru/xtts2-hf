@@ -3,7 +3,7 @@ title: XTTS
 emoji: 🐸
 colorFrom: green
 colorTo: red
-sdk: gradio
+sdk: docker
 sdk_version: 3.48.0
 app_file: app.py
 pinned: false
