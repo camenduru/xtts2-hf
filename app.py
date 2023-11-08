@@ -212,9 +212,9 @@ def predict(
                 f"Unrecoverable exception caused by language:{DEVICE_ASSERT_LANG} prompt:{DEVICE_ASSERT_PROMPT}"
             )
 
-            print("RESTARTING SPACE")
-            # HF Space specific.. This error is unrecoverable need to restart space
-            api.restart_space(repo_id=repo_id)
+            #print("RESTARTING SPACE")
+            ## HF Space specific.. This error is unrecoverable need to restart space
+            #api.restart_space(repo_id=repo_id)
         try:
             metrics_text = ""
             t_latent = time.time()
