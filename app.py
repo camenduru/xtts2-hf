@@ -212,9 +212,13 @@ def predict(
                 f"Unrecoverable exception caused by language:{DEVICE_ASSERT_LANG} prompt:{DEVICE_ASSERT_PROMPT}"
             )
 
-            #print("RESTARTING SPACE")
-            ## HF Space specific.. This error is unrecoverable need to restart space
-            #api.restart_space(repo_id=repo_id)
+            # HF Space specific.. This error is unrecoverable need to restart space
+            space = api.get_space_runtime(repo_id=repo_id)
+            if space.stage!="BUILDING":
+                api.restart_space(repo_id=repo_id)
+            else:
+                print("TRIED TO RESTART but space is building")
+
         try:
             metrics_text = ""
             t_latent = time.time()
@@ -358,7 +362,12 @@ def predict(
                 )
 
                 # HF Space specific.. This error is unrecoverable need to restart space
-                api.restart_space(repo_id=repo_id)
+                space = api.get_space_runtime(repo_id=repo_id)
+                if space.stage!="BUILDING":
+                    api.restart_space(repo_id=repo_id)
+                else:
+                    print("TRIED TO RESTART but space is building")
+                    
             else:
                 if "Failed to decode" in str(e):
                     print("Speaker encoding error", str(e))
