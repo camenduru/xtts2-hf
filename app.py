@@ -421,7 +421,7 @@ links = """
 
 |                                 |                                         |
 | ------------------------------- | --------------------------------------- |
-| 🐸💬 **CoquiTTS**                |  [Github](https://github.com/coqui-ai/TTS) <a style="display:inline-block" href='https://github.com/coqui-ai/TTS'><img src='https://img.shields.io/github/stars/coqui-ai/TTS?style=social' /></a>|
+| 🐸💬 **CoquiTTS**                | <a style="display:inline-block" href='https://github.com/coqui-ai/TTS'><img src='https://img.shields.io/github/stars/coqui-ai/TTS?style=social' /></a>|
 | 💼 **Documentation**            | [ReadTheDocs](https://tts.readthedocs.io/en/latest/)
 | 👩‍💻 **Questions**                | [GitHub Discussions](https://github.com/coqui-ai/TTS/discussions) |
 | 🗯 **Community**         | [![Dicord](https://img.shields.io/discord/1037326658807533628?color=%239B59B6&label=chat%20on%20discord)](https://discord.gg/5eXr5seRrv)  |
