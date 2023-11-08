@@ -18,7 +18,7 @@ import base64
 import csv
 from io import StringIO
 import datetime
-import re 
+import re
 
 import gradio as gr
 from scipy.io.wavfile import write
@@ -239,7 +239,7 @@ def predict(
 
             # temporary comma fix
             prompt= re.sub("([^\x00-\x7F]|\w)(\.|\。|\?)",r"\1 \2\2",prompt)
-            
+
             wav_chunks = []
             ## Direct mode
             """
@@ -260,7 +260,7 @@ def predict(
             metrics_text+=f"Real-time factor (RTF): {real_time_factor:.2f}\n"
             torchaudio.save("output.wav", torch.tensor(out["wav"]).unsqueeze(0), 24000)
             """
-            
+
             print("I: Generating new audio in streaming mode...")
             t0 = time.time()
             chunks = model.inference_stream(
@@ -287,7 +287,7 @@ def predict(
             #metrics_text += (
             #    f"Time to generate audio: {round(inference_time*1000)} milliseconds\n"
             #)
-            
+
             wav = torch.cat(wav_chunks, dim=0)
             print(wav.shape)
             real_time_factor = (time.time() - t0) / wav.shape[0] * 24000
@@ -392,29 +392,41 @@ def predict(
 title = "Coqui🐸 XTTS"
 
 description = """
-<div>
-<a style="display:inline-block" href='https://github.com/coqui-ai/TTS'><img src='https://img.shields.io/github/stars/coqui-ai/TTS?style=social' /></a>
-<a style='display:inline-block' href='https://discord.gg/5eXr5seRrv'><img src='https://discord.com/api/guilds/1037326658807533628/widget.png?style=shield' /></a>
-<a href="https://huggingface.co/spaces/coqui/xtts?duplicate=true">
-<img style="margin-top: 0em; margin-bottom: 0em" src="https://bit.ly/3gLdBN6" alt="Duplicate Space"></a>
-</div>
 
-<a href="https://huggingface.co/coqui/XTTS-v2">XTTS</a> is a Voice generation model that lets you clone voices into different languages by using just a quick 6-second audio clip. 
 <br/>
-XTTS is built on previous research, like Tortoise, with additional architectural innovations and training to make cross-language voice cloning and multilingual speech generation possible. 
+
+<a href="https://huggingface.co/coqui/XTTS-v2">XTTS</a> is a text-to-speech model that lets you clone voices into different languages.
+
 <br/>
+
 This is the same model that powers our creator application <a href="https://coqui.ai">Coqui Studio</a> as well as the <a href="https://docs.coqui.ai">Coqui API</a>. In production we apply modifications to make low-latency streaming possible.
+
 <br/>
-Leave a star on the Github <a href="https://github.com/coqui-ai/TTS">🐸TTS</a>, where our open-source inference and training code lives.
-<br/>
-<p>For faster inference without waiting in the queue, you should duplicate this space and upgrade to GPU via the settings.
-<br/>
+
+There are 16 languages.
+
+<p>
+Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs, Dutch: nl, English: en, French: fr, Italian: it, Polish: pl, Russian: ru, Spanish: es, Turkish: tr, Japanese: ja, Korean: ko, Hungarian: hu <br/>
 </p>
-<p>Language Selectors: 
-Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs, Dutch: nl, English: en, French: fr, Italian: it, Polish: pl,<br/> 
-Russian: ru, Spanish: es, Turkish: tr, Japanese: ja, Korean: ko, Hungarian: hu <br/> 
-</p>
+
+<br/>
+
+Leave a star 🌟 on the Github <a href="https://github.com/coqui-ai/TTS">🐸TTS</a>, where our open-source inference and training code lives.
+
+<br/>
+"""
+
+links = """
 <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=0d00920c-8cc9-4bf3-90f2-a615797e5f59" />
+
+|                                 |                                         |
+| ------------------------------- | --------------------------------------- |
+| 🐸💬 **CoquiTTS**                |  [Github](https://github.com/coqui-ai/TTS) <a style="display:inline-block" href='https://github.com/coqui-ai/TTS'><img src='https://img.shields.io/github/stars/coqui-ai/TTS?style=social' /></a>|
+| 💼 **Documentation**            | [ReadTheDocs](https://tts.readthedocs.io/en/latest/)
+| 👩‍💻 **Questions**                | [GitHub Discussions](https://github.com/coqui-ai/TTS/discussions) |
+| 🗯 **Community**         | [![Dicord](https://img.shields.io/discord/1037326658807533628?color=%239B59B6&label=chat%20on%20discord)](https://discord.gg/5eXr5seRrv)  |
+
+
 """
 
 article = """
@@ -577,79 +589,103 @@ examples = [
 ]
 
 
-gr.Interface(
-    fn=predict,
-    inputs=[
-        gr.Textbox(
-            label="Text Prompt",
-            info="One or two sentences at a time is better. Up to 200 text characters.",
-            value="Hi there, I'm your new voice clone. Try your best to upload quality audio",
-        ),
-        gr.Dropdown(
-            label="Language",
-            info="Select an output language for the synthesised speech",
-            choices=[
-                "en",
-                "es",
-                "fr",
-                "de",
-                "it",
-                "pt",
-                "pl",
-                "tr",
-                "ru",
-                "nl",
-                "cs",
-                "ar",
-                "zh-cn",
-                "ja",
-                "ko",
-                "hu"
-            ],
-            max_choices=1,
-            value="en",
-        ),
-        gr.Audio(
-            label="Reference Audio",
-            info="Click on the ✎ button to upload your own target speaker audio",
-            type="filepath",
-            value="examples/female.wav",
-        ),
-        gr.Audio(
-            source="microphone",
-            type="filepath",
-            info="Use your microphone to record audio",
-            label="Use Microphone for Reference",
-        ),
-        gr.Checkbox(
-            label="Use Microphone",
-            value=False,
-            info="Notice: Microphone input may not work properly under traffic",
-        ),
-        gr.Checkbox(
-            label="Cleanup Reference Voice",
-            value=False,
-            info="This check can improve output if your microphone or reference voice is noisy",
-        ),
-        gr.Checkbox(
-            label="Do not use language auto-detect",
-            value=False,
-            info="Check to disable language auto-detection",
-        ),
-        gr.Checkbox(
-            label="Agree",
-            value=False,
-            info="I agree to the terms of the Coqui Public Model License at https://coqui.ai/cpml",
-        ),
-    ],
-    outputs=[
-        gr.Video(label="Waveform Visual"),
-        gr.Audio(label="Synthesised Audio", autoplay=True),
-        gr.Text(label="Metrics"),
-        gr.Audio(label="Reference Audio Used"),
-    ],
-    title=title,
-    description=description,
-    article=article,
-    examples=examples,
-).queue().launch(debug=True, show_api=True)
+
+with gr.Blocks(analytics_enabled=False) as demo:
+    with gr.Row():
+        with gr.Column(width=2):
+            gr.Markdown(
+                """
+                ## <img src="https://raw.githubusercontent.com/coqui-ai/TTS/main/images/coqui-log-green-TTS.png" height="56"/>
+                """
+            )
+
+    with gr.Row():
+        with gr.Column():
+            gr.Markdown(description)
+        with gr.Column():
+            gr.Markdown(links)
+
+    with gr.Row():
+        with gr.Column():
+            input_text_gr = gr.Textbox(
+                label="Text Prompt",
+                info="One or two sentences at a time is better. Up to 200 text characters.",
+                value="Hi there, I'm your new voice clone. Try your best to upload quality audio",
+            )
+            language_gr = gr.Dropdown(
+                label="Language",
+                info="Select an output language for the synthesised speech",
+                choices=[
+                    "en",
+                    "es",
+                    "fr",
+                    "de",
+                    "it",
+                    "pt",
+                    "pl",
+                    "tr",
+                    "ru",
+                    "nl",
+                    "cs",
+                    "ar",
+                    "zh-cn",
+                    "ja",
+                    "ko",
+                    "hu"
+                ],
+                max_choices=1,
+                value="en",
+            )
+            ref_gr = gr.Audio(
+                label="Reference Audio",
+                info="Click on the ✎ button to upload your own target speaker audio",
+                type="filepath",
+                value="examples/female.wav",
+            )
+            mic_gr = gr.Audio(
+                source="microphone",
+                type="filepath",
+                info="Use your microphone to record audio",
+                label="Use Microphone for Reference",
+            )
+            use_mic_gr = gr.Checkbox(
+                label="Use Microphone",
+                value=False,
+                info="Notice: Microphone input may not work properly under traffic",
+            )
+            clean_ref_gr = gr.Checkbox(
+                label="Cleanup Reference Voice",
+                value=False,
+                info="This check can improve output if your microphone or reference voice is noisy",
+            )
+            auto_det_lang_gr = gr.Checkbox(
+                label="Do not use language auto-detect",
+                value=False,
+                info="Check to disable language auto-detection",
+            )
+            tos_gr = gr.Checkbox(
+                label="Agree",
+                value=False,
+                info="I agree to the terms of the Coqui Public Model License at https://coqui.ai/cpml",
+            )
+
+            tts_button = gr.Button("Send", elem_id="send-btn", visible=True)
+
+
+        with gr.Column():
+            video_gr = gr.Video(label="Waveform Visual")
+            audio_gr = gr.Audio(label="Synthesised Audio", autoplay=True)
+            out_text_gr = gr.Text(label="Metrics")
+            ref_audio_gr = gr.Audio(label="Reference Audio Used")
+
+    with gr.Row():
+        gr.Examples(examples,
+                    label="Examples",
+                    inputs=[input_text_gr, language_gr, ref_gr, mic_gr, use_mic_gr, clean_ref_gr, auto_det_lang_gr, tos_gr],
+                    outputs=[video_gr, audio_gr, out_text_gr, ref_audio_gr],
+                    fn=predict,
+                    cache_examples=False,)
+
+    tts_button.click(predict, [input_text_gr, language_gr, ref_gr, mic_gr, use_mic_gr, clean_ref_gr, auto_det_lang_gr, tos_gr], outputs=[video_gr, audio_gr, out_text_gr, ref_audio_gr])
+
+demo.queue(concurrency_count=16).launch(debug=True, show_api=True)
