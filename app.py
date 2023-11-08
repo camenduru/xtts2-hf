@@ -592,12 +592,15 @@ examples = [
 
 with gr.Blocks(analytics_enabled=False) as demo:
     with gr.Row():
-        with gr.Column(width=2):
+        with gr.Column():
             gr.Markdown(
                 """
                 ## <img src="https://raw.githubusercontent.com/coqui-ai/TTS/main/images/coqui-log-green-TTS.png" height="56"/>
                 """
             )
+        with gr.Column():
+            # placeholder to align the image
+            pass
 
     with gr.Row():
         with gr.Column():
