@@ -275,7 +275,7 @@ def predict(
                 language,
                 gpt_cond_latent,
                 speaker_embedding,
-                #repetition_penalty=5.0,
+                repetition_penalty=7.0,
                 temperature=0.85,
             )
 
