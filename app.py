@@ -256,8 +256,7 @@ def predict(
                 prompt,
                 language,
                 gpt_cond_latent,
-                speaker_embedding,
-                diffusion_conditioning
+                speaker_embedding                
             )
             inference_time = time.time() - t0
             print(f"I: Time to generate audio: {round(inference_time*1000)} milliseconds")
