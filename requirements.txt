@@ -54,7 +54,7 @@ encodec==0.1.*
 unidecode==1.3.*
 langid
 # Install tts
-git+https://github.com/coqui-ai/tts.git@v0.20.2
+git+https://github.com/coqui-ai/tts.git@v0.20.5
 deepspeed==0.11.1
 pydub
 cutlet
