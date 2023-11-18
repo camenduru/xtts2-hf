@@ -8,6 +8,10 @@ import time
 import torch
 import torchaudio
 
+
+#download for mecab
+os.system('python -m unidic download')
+
 # By using XTTS you agree to CPML license https://coqui.ai/cpml
 os.environ["COQUI_TOS_AGREED"] = "1"
 
