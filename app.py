@@ -421,7 +421,7 @@ This is the same model that powers our creator application <a href="https://coqu
 There are 16 languages.
 
 <p>
-Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs, Dutch: nl, English: en, French: fr, German: de, Italian: it, Polish: pl, Russian: ru, Spanish: es, Turkish: tr, Japanese: ja, Korean: ko, Hungarian: hu <br/>
+Arabic: ar, Brazilian Portuguese: pt , Chinese: zh-cn, Czech: cs, Dutch: nl, English: en, French: fr, German: de, Italian: it, Polish: pl, Russian: ru, Spanish: es, Turkish: tr, Japanese: ja, Korean: ko, Hungarian: hu, Hindi: hi <br/>
 </p>
 
 <br/>
@@ -649,7 +649,8 @@ with gr.Blocks(analytics_enabled=False) as demo:
                     "zh-cn",
                     "ja",
                     "ko",
-                    "hu"
+                    "hu",
+                    "hi"
                 ],
                 max_choices=1,
                 value="en",
