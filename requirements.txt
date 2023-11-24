@@ -1,5 +1,5 @@
 # Preinstall requirements from TTS 
-TTS @ git+https://github.com/coqui-ai/TTS@v0.20.6
+TTS @ git+https://github.com/coqui-ai/TTS@v0.21.0
 pydantic==1.10.13
 python-multipart==0.0.6
 typing-extensions>=4.8.0
