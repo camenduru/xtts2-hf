@@ -253,14 +253,16 @@ def predict(
 
             wav_chunks = []
             ## Direct mode
-            """
+            
             print("I: Generating new audio...")
             t0 = time.time()
             out = model.inference(
                 prompt,
                 language,
                 gpt_cond_latent,
-                speaker_embedding                
+                speaker_embedding,
+                repetition_penalty=5.0,
+                temperature=0.75,
             )
             inference_time = time.time() - t0
             print(f"I: Time to generate audio: {round(inference_time*1000)} milliseconds")
@@ -269,8 +271,9 @@ def predict(
             print(f"Real-time factor (RTF): {real_time_factor}")
             metrics_text+=f"Real-time factor (RTF): {real_time_factor:.2f}\n"
             torchaudio.save("output.wav", torch.tensor(out["wav"]).unsqueeze(0), 24000)
-            """
 
+
+            """
             print("I: Generating new audio in streaming mode...")
             t0 = time.time()
             chunks = model.inference_stream(
@@ -305,6 +308,7 @@ def predict(
             metrics_text += f"Real-time factor (RTF): {real_time_factor:.2f}\n"
 
             torchaudio.save("output.wav", wav.squeeze().unsqueeze(0).cpu(), 24000)
+            """
 
         except RuntimeError as e:
             if "device-side assert" in str(e):
