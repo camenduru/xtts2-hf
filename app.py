@@ -232,7 +232,7 @@ def predict(
                 (
                     gpt_cond_latent,
                     speaker_embedding,
-                ) = model.get_conditioning_latents(audio_path=speaker_wav, gpt_cond_len=30, max_ref_length=60)
+                ) = model.get_conditioning_latents(audio_path=speaker_wav, gpt_cond_len=30, gpt_cond_chunk_len=4, max_ref_length=60)
             except Exception as e:
                 print("Speaker encoding error", str(e))
                 gr.Warning(
