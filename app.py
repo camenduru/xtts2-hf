@@ -407,6 +407,9 @@ def predict(
 title = "Coqui🐸 XTTS"
 
 description = """
+<br/>
+
+This demo is currently running **XTTS v2.0.3**
 
 <br/>
 
