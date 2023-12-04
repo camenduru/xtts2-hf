@@ -670,7 +670,7 @@ with gr.Blocks(analytics_enabled=False) as demo:
             )
             tos_gr = gr.Checkbox(
                 label="Agree",
-                value=False,
+                value=True,
                 info="I agree to the terms of the Coqui Public Model License at https://coqui.ai/cpml",
             )
 
