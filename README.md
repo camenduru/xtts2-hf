@@ -12,3 +12,5 @@ models:
 ---
 
 Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
+
+this has been updated to 2000 characters 
