@@ -197,7 +197,7 @@ def predict(
                 None,
                 None,
             )
-        if len(prompt) > 200:
+        if len(prompt) > 2000:
             gr.Warning(
                 "Text length limited to 200 characters for this demo, please try shorter text. You can clone this space and edit code for your own usage"
             )
@@ -715,4 +715,4 @@ with gr.Blocks(analytics_enabled=False) as demo:
     tts_button.click(predict, [input_text_gr, language_gr, ref_gr, mic_gr, use_mic_gr, clean_ref_gr, auto_det_lang_gr, tos_gr], outputs=[video_gr, audio_gr, out_text_gr, ref_audio_gr])
 
 demo.queue()  
-demo.launch(debug=True, show_api=True)
+demo.launch(debug=True,share=True, show_api=True)
